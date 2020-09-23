@@ -2,19 +2,18 @@
 import json
 
 from behave import *
-
-from features.bdd import util as bdd_util
+from features.steps.core import bdd_util
 
 def get_product_property_id_by_name(name):
-	objs = bdd_util.exec_sql("select * from product_sku_property where name = %s", [name])
+	objs = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_sku_property where name = %s", [name])
 	return objs[0]['id']
 
 def get_product_property_value_ids():
-	objs = bdd_util.exec_sql("select * from product_sku_property_value", [])
+	objs = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_sku_property_value", [])
 	return [obj['id'] for obj in objs]
 
 def get_product_property_value_by_value(value):
-	objs = bdd_util.exec_sql("select * from product_sku_property_value where Text = %s", [value])
+	objs = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_sku_property_value where Text = %s", [value])
 	return objs[0]['id'], objs[0]['property_id']
 
 
@@ -23,7 +22,7 @@ def __add_product_property(context, product_property):
 	data = {
 		"name": product_property['name']
 	}
-	response = context.client.put('product.property', data)
+	response = context.client.put('ginger-product:product.property', data)
 	bdd_util.assert_api_call_success(response)
 
 	product_property_id = response.data['id']
@@ -36,13 +35,13 @@ def __add_product_property(context, product_property):
 		else:
 			value['image'] = ''
 		value['property_id'] = product_property_id
-		response = context.client.put('product.property_value', value)
+		response = context.client.put('ginger-product:product.property_value', value)
 		bdd_util.assert_api_call_success(response)
 
 @Then(u"{user}能看到商品属性列表")
 def step_impl(context, user):
 	expected = json.loads(context.text)
-	resp = context.client.get("product.corp_product_properties")
+	resp = context.client.get("ginger-product:product.corp_product_properties")
 	bdd_util.assert_api_call_success(resp)
 
 	actual = resp.data["product_properties"]
@@ -63,7 +62,7 @@ def step_impl(context, user):
 def step_impl(context, user, name):
 	expected = json.loads(context.text)
 	id = get_product_property_id_by_name(name)
-	resp = context.client.delete("product.property", {"id": id})
+	resp = context.client.delete("ginger-product:product.property", {"id": id})
 	if not expected.get("error_code"):
 		bdd_util.assert_api_call_success(resp)
 	else:
@@ -73,7 +72,7 @@ def step_impl(context, user, name):
 def step_impl(context, user, value):
 	expected = json.loads(context.text)
 	id, property_id = get_product_property_value_by_value(value)
-	resp = context.client.delete("product.property_value", {"id": id, "property_id": property_id})
+	resp = context.client.delete("ginger-product:product.property_value", {"id": id, "property_id": property_id})
 	if not expected.get("error_code"):
 		bdd_util.assert_api_call_success(resp)
 	else:
@@ -89,14 +88,14 @@ def step_impl(context, user, name):
 	if values:
 		del params['values']
 
-	resp = context.client.post("product.property", params)
+	resp = context.client.post("ginger-product:product.property", params)
 	bdd_util.assert_api_call_success(resp)
 
 	#更新property value
 	if values:
 		existed_value_ids = get_product_property_value_ids()
 		for existed_value_id in existed_value_ids:
-			response = context.client.delete('product.property_value', {
+			response = context.client.delete('ginger-product:product.property_value', {
 				"property_id": id,
 				"id": existed_value_id
 			})
@@ -109,19 +108,19 @@ def step_impl(context, user, name):
 			else:
 				value['image'] = ''
 			value['property_id'] = id
-			response = context.client.put('product.property_value', value)
+			response = context.client.put('ginger-product:product.property_value', value)
 			bdd_util.assert_api_call_success(response)
 
 
 @When(u"{user}启用商品属性'{name}'")
 def step_impl(context, user, name):
 	id = get_product_property_id_by_name(name)
-	resp = context.client.delete("product.disabled_property", {"id": id})
+	resp = context.client.delete("ginger-product:product.disabled_property", {"id": id})
 	bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}禁用商品属性'{name}'")
 def step_impl(context, user, name):
 	id = get_product_property_id_by_name(name)
-	resp = context.client.put("product.disabled_property", {"id": id})
+	resp = context.client.put("ginger-product:product.disabled_property", {"id": id})
 	bdd_util.assert_api_call_success(resp)
 

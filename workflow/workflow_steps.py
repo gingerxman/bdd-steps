@@ -4,12 +4,10 @@ import sys
 #sys.setdefaultencoding('gb2312')
 
 from behave import *
-from features.steps.core import client as bdd_client
-from features.steps.core import bdd_util, step_util
+from features.steps.core import bdd_util, RestClient
 
 @given(u"重置服务")
 def step_impl(context):
-	from features.bdd.client import RestClient
 	rest_client = RestClient()
 	response = rest_client.put('ginger-finance:dev.bdd_reset')
 	bdd_util.assert_api_call_success(response)

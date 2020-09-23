@@ -4,25 +4,20 @@ import time
 
 from behave import *
 
-from features.bdd import util as bdd_util
-from features.bdd.client import RestClient
+from features.steps.core import bdd_util
 from features.steps.product import product_steps
 
-def get_ship_info_id_by_address(address):
-	objs = bdd_util.exec_sql("select * from mall_ship_info where address = %s", [address])
-	return objs[0]['id']
-
 def get_pool_product_id_by_name(name, corp_id=None):
-	product_model = bdd_util.exec_sql("select * from product_product where name = %s", [name])[0]
+	product_model = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_product where name = %s", [name])[0]
 	if corp_id:
-		pool_product_model = bdd_util.exec_sql("select * from product_pool_product where product_id = %s and corp_id=%s", [product_model['id'], corp_id])[0]
+		pool_product_model = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_pool_product where product_id = %s and corp_id=%s", [product_model['id'], corp_id])[0]
 	else:
-		pool_product_model = bdd_util.exec_sql("select * from product_pool_product where product_id = %s order by id asc", [product_model['id']])[0]
+		pool_product_model = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_pool_product where product_id = %s order by id asc", [product_model['id']])[0]
 	return pool_product_model['id']
 
 def get_shopping_cart_item_id_by_product_name(product_name):
 	pool_product_id = get_pool_product_id_by_name(product_name)
-	shopping_cart_item = bdd_util.exec_sql("select * from mall_shopping_cart where product_id = %s", [pool_product_id])[0]
+	shopping_cart_item = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from cart_item where pool_product_id = %s", [pool_product_id])[0]
 	return shopping_cart_item['id']
 
 @when(u"{user}加入{corp_name}的商品到购物车")
@@ -37,13 +32,13 @@ def step_impl(context, user, corp_name):
 			'count': product_data['count'],
 			'sku_name': sku_name
 		}
-		response = context.client.put('mall.shopping_cart_item', data)
+		response = context.client.put('ginger-product:cart.cart_item', data)
 		bdd_util.assert_api_call_success(response)
 		time.sleep(0.1)
 
 @then(u"{user}能获得购物车")
 def step_impl(context, user):
-	response = context.client.get("mall.shopping_cart", {})
+	response = context.client.get("ginger-product:cart.cart", {})
 	bdd_util.assert_api_call_success(response)
 
 	actual = response.data
@@ -70,12 +65,12 @@ def step_impl(context, user):
 		data = {
 			'id': shopping_cart_item_id
 		}
-		response = context.client.delete('mall.shopping_cart_item', data)
+		response = context.client.delete('ginger-product:cart.cart_item', data)
 		bdd_util.assert_api_call_success(response)
 
 @then(u"{user}能获得购物车中商品数量为'{count}'")
 def step_impl(context, user, count):
-	response = context.client.get("mall.shopping_cart_product_count", {})
+	response = context.client.get("ginger-product:cart.product_count", {})
 	bdd_util.assert_api_call_success(response)
 
 	actual = response.data['count']

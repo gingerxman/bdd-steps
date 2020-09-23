@@ -6,7 +6,11 @@ from datetime import datetime, timedelta
 
 import db_util
 
+DB_PRODUCT = "ginger_product"
+DB_ORDER = "ginger_order"
+
 exec_sql = db_util.exec_sql
+
 
 tc = None
 

@@ -3,9 +3,7 @@ import json
 
 from behave import *
 
-from features.bdd import util as bdd_util
-from features.bdd.client import RestClient
-from features.steps.product import product_steps
+from features.steps.core import bdd_util
 from features.steps.finance import finance_steps
 from features.steps.mall import ship_info_steps
 
@@ -68,7 +66,7 @@ def step_impl(context, app_user, corpuser_name):
 
 	product_datas = []
 	for product_data in input_data['products']:
-		resp = context.client.get("product.corp_products", {
+		resp = context.client.get("ginger-product:product.corp_products", {
 			"corp_id": context.corp['id'],
 			"__f-name-contain": product_data['name']
 		})

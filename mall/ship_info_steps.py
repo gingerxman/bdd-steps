@@ -3,11 +3,10 @@ import json
 
 from behave import *
 
-from features.bdd import util as bdd_util
-from features.bdd.client import RestClient
+from features.steps.core import bdd_util
 
 def get_ship_info_id_by_address(address):
-	objs = bdd_util.exec_sql("select * from mall_ship_info where address = %s", [address])
+	objs = bdd_util.exec_sql(bdd_util.DB_ORDER, "select * from mall_ship_info where address = %s", [address])
 	return objs[0]['id']
 
 def get_area_code_by_name(client, name):

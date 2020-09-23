@@ -3,10 +3,10 @@ import json
 
 from behave import *
 
-from features.bdd import util as bdd_util
+from features.steps.core import bdd_util
 
 def get_product_category_id_by_name(name):
-	objs = bdd_util.exec_sql("select * from product_category where name = %s", [name])
+	objs = bdd_util.exec_sql(bdd_util.DB_PRODUCT, "select * from product_category where name = %s", [name])
 	return objs[0]['id']
 
 @Then(u"{user}能看到'{category_name}'分类下的商品分类列表")

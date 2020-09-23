@@ -5,7 +5,7 @@ import sys
 
 from behave import *
 from features.steps.core import client as bdd_client
-from features.steps.core import bdd_util, step_util
+from features.steps.core import bdd_util, step_util, RestClient
 
 
 @Given(u"{user}登录系统")
@@ -28,7 +28,6 @@ def step_impl(context, user):
 
 @Given(u"{user}访问'{corpuser_name}'的商城")
 def step_impl(context, user, corpuser_name):
-	from features.bdd.client import RestClient
 	client = RestClient()
 
 	corp_id = step_util.get_corp_id_for_corpuser(client, corpuser_name)

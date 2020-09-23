@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 
-# from features.util import bdd_util
-from features.bdd import util as bdd_util
 from behave import *
+
+from features.steps.core import bdd_util
+
 
 def create_corp(context, corp_name, username):
 	"""
