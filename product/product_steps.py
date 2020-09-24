@@ -12,7 +12,6 @@ def get_product_category_id_by_name(name):
 		return 0
 
 	objs = bdd_util.exec_sql("ginger_product", "select * from product_category where name = %s", [name])
-	print objs, "objs"
 	return objs[0]['id']
 
 def get_product_id_by_name(name):

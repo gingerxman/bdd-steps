@@ -6,42 +6,23 @@ from behave import *
 from features.steps.core import bdd_util
 from features.steps.finance import finance_steps
 from features.steps.mall import ship_info_steps
-
-def get_product_category_id_by_name(name):
-	objs = bdd_util.exec_sql("select * from product_category where name = %s", [name])
-	return objs[0]['id']
+from features.steps.product import product_steps
 
 def get_latest_order_bid():
-	objs = bdd_util.exec_sql("select * from order_order where type = 1 order by id desc limit 1", [])
+	objs = bdd_util.exec_sql("ginger_order", "select * from order_order where type = 1 order by id desc limit 1", [])
 	if len(objs) == 0:
-		objs = bdd_util.exec_sql("select * from order_order where type = 3 order by id desc limit 1", [])
+		objs = bdd_util.exec_sql("ginger_order","select * from order_order where type = 3 order by id desc limit 1", [])
 	return objs[0]['bid']
 
 def get_latest_invoice_bid():
-	objs = bdd_util.exec_sql("select * from order_order where type = 2 order by id desc limit 1", [])
+	objs = bdd_util.exec_sql("ginger_order", "select * from order_order where type = 2 order by id desc limit 1", [])
 	return objs[0]['bid']
-
-def get_sku_code_from_display_name(sku_name):
-	target_pattern = '_%s' % sku_name
-	objs = bdd_util.exec_sql("select * from product_sku", [])
-	for obj in objs:
-		if target_pattern in obj['code']:
-			return obj['name']
 
 def get_salesman_id_by_username(client, username):
 	user_id = finance_steps.get_user_id_by_user_name(username)
 	objs = bdd_util.exec_sql("select * from mall_salesman where user_id = %s", [user_id])
 	return objs[0]['id']
 
-
-# def get_corp_id_by_corpuser_name(corpuser_name):
-# 	client = RestClient()
-# 	data = {
-# 		"username": corpuser_name,
-# 		"password": '55e421ee9bdc9d9f6b6c6518E590b0ee'
-# 	}
-# 	resp = client.put('ginger-account:login.logined_corp_user', data)
-# 	return resp.data['cid']
 
 STATUS2STR = {
 	'wait_pay': u'待支付',
@@ -75,7 +56,7 @@ def step_impl(context, app_user, corpuser_name):
 		product = resp.data['products'][0]
 		sku_name = product_data.get('sku', 'standard')
 		if sku_name != 'standard':
-			sku_name = get_sku_code_from_display_name(sku_name)
+			sku_name = product_steps.get_sku_name_from_display_name(sku_name)
 			for sku in product['skus']:
 				if sku['name'] == sku_name:
 					sku_price = sku['price']
@@ -136,7 +117,7 @@ def step_impl(context, app_user, corpuser_name):
 	if 'salesman_id' in input_data:
 		data['salesman_id'] = input_data['salesman_id']
 
-	url = 'order.order'
+	url = 'ginger-order:order.order'
 	response = context.client.put(url, data)
 	bdd_util.assert_api_call(response, context)
 	context.response = response
@@ -146,7 +127,7 @@ def step_impl(context, app_user, corpuser_name):
 def step_impl(context, webapp_user_name):
 	latest_order_bid = get_latest_order_bid()
 
-	response = context.client.get("order.order", {
+	response = context.client.get("ginger-order:order.order", {
 		"bid": latest_order_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -219,7 +200,7 @@ def step_impl(context, webapp_user_name):
 def step_impl(context, webapp_user_name, status):
 	latest_order_bid = get_latest_order_bid()
 
-	response = context.client.get("order.order_status", {
+	response = context.client.get("ginger-order:order.order_status", {
 		"bid": latest_order_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -233,7 +214,7 @@ def step_impl(context, webapp_user_name, status):
 def step_impl(context, webapp_user_name, status):
 	latest_invoice_bid = get_latest_invoice_bid()
 
-	response = context.client.get("order.order_status", {
+	response = context.client.get("ginger-order:order.order_status", {
 		"bid": latest_invoice_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -247,7 +228,7 @@ def step_impl(context, webapp_user_name, status):
 def step_impl(context, webapp_user_name):
 	latest_order_bid = get_latest_order_bid()
 
-	response = context.client.put("order.payed_order", {
+	response = context.client.put("ginger-order:order.payed_order", {
 		"bid": latest_order_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -257,7 +238,7 @@ def step_impl(context, webapp_user_name):
 def step_impl(context, webapp_user_name):
 	latest_invoice_bid = get_latest_invoice_bid()
 
-	response = context.client.put("order.finished_invoice", {
+	response = context.client.put("ginger-order:order.finished_invoice", {
 		"bid": latest_invoice_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -274,7 +255,7 @@ def step_impl(context, webapp_user_name):
 def step_impl(context, corp_user):
 	latest_invoice_bid = get_latest_invoice_bid()
 
-	response = context.client.put("order.confirmed_invoice", {
+	response = context.client.put("ginger-order:order.confirmed_invoice", {
 		"bid": latest_invoice_bid
 	})
 	bdd_util.assert_api_call_success(response)
@@ -294,7 +275,7 @@ def step_impl(context, corp_user):
 	data['shipper'] = input_data.get('shipper', u'默认发货人')
 
 
-	response = context.client.put("order.shipped_invoice", {
+	response = context.client.put("ginger-order:order.shipped_invoice", {
 		'ship_infos': json.dumps([data])
 	})
 	bdd_util.assert_api_call_success(response)

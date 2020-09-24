@@ -2,7 +2,7 @@
 import json
 import logging
 from datetime import datetime, timedelta
-
+import unittest
 
 import db_util
 
@@ -12,7 +12,7 @@ DB_ORDER = "ginger_order"
 exec_sql = db_util.exec_sql
 
 
-tc = None
+tc = unittest.TestCase('__init__')
 
 def convert_to_same_type(a, b):
 	def to_same_type(target, other):
