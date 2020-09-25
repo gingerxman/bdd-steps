@@ -6,24 +6,24 @@ import sys
 
 CUR_CONTEXT = None
 
-_SERVICE_INFO = None
+_SERVICE_INFO = {}
 def get_service_info():
-	global _SERVICE_INFO
-	if not _SERVICE_INFO:
-		service_name = None
-		service_port = None
-		with open('./conf/app.conf', 'rb') as f:
-			for line in f:
-				line = line.strip()
-				if line.startswith('SERVICE_NAME'):
-					service_name = line.split(' ')[-1]
-				if line.startswith('HTTP_PORT'):
-					service_port = line.split(' ')[-1]
-
-		_SERVICE_INFO = {
-			'name': service_name,
-			'port': service_port
-		}
+	# global _SERVICE_INFO
+	# if not _SERVICE_INFO:
+	# 	service_name = None
+	# 	service_port = None
+	# 	with open('./conf/app.conf', 'rb') as f:
+	# 		for line in f:
+	# 			line = line.strip()
+	# 			if line.startswith('SERVICE_NAME'):
+	# 				service_name = line.split(' ')[-1]
+	# 			if line.startswith('HTTP_PORT'):
+	# 				service_port = line.split(' ')[-1]
+	#
+	# 	_SERVICE_INFO = {
+	# 		'name': service_name,
+	# 		'port': service_port
+	# 	}
 
 	return _SERVICE_INFO
 
@@ -108,18 +108,20 @@ class RestClient(object):
 		service_info = get_service_info()
 
 		service = None
-		if ':' in resource:
-			service, resource = resource.split(':')
+		if not ':' in resource:
+			raise RuntimeError('CALL service resource with no service name: %s' % resource)
 
-		if not service is None and service == service_info['name']:
-			if is_in_dev_machine():
-				#本机开发，直接访问127.0.0.1
-				service = None
+		service, resource = resource.split(':')
 
-		if not service:
-			if not is_in_dev_machine():
-				#自动化测试环境，没有携带service的，自动转为当前service
-				servivce = service_info['name']
+		# if not service is None and service == service_info['name']:
+		# 	if is_in_dev_machine():
+		# 		#本机开发，直接访问127.0.0.1
+		# 		service = None
+		#
+		# if not service:
+		# 	if not is_in_dev_machine():
+		# 		#自动化测试环境，没有携带service的，自动转为当前service
+		# 		servivce = service_info['name']
 
 		pos = resource.rfind('.')
 		if pos == -1:
