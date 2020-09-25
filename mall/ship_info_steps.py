@@ -10,7 +10,7 @@ def get_ship_info_id_by_address(address):
 	return objs[0]['id']
 
 def get_area_code_by_name(client, name):
-	resp = client.get('area.area_code', {
+	resp = client.get('ginger-account:area.area_code', {
 		'name': name
 	})
 	bdd_util.assert_api_call_success(resp)
@@ -20,7 +20,7 @@ def get_area_code_by_name(client, name):
 @Then(u"{user}能看到收货地址列表")
 def step_impl(context, user):
 	expected = json.loads(context.text)
-	resp = context.client.get("mall.ship_infos")
+	resp = context.client.get("ginger-order:mall.ship_infos")
 	actual = resp.data["ship_infos"]
 
 	bdd_util.assert_api_call_success(resp)
@@ -42,13 +42,13 @@ def step_impl(context, user):
 			"area_code": area_code,
 			"address": input_data.get('address', '国创园')
 		}
-		resp = context.client.put("mall.ship_info", data)
+		resp = context.client.put("ginger-order:mall.ship_info", data)
 		bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}删除收货地址'{address}'")
 def step_impl(context, user, address):
 	id = get_ship_info_id_by_address(address)
-	resp = context.client.delete("mall.ship_info", {"id": id})
+	resp = context.client.delete("ginger-order:mall.ship_info", {"id": id})
 	bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}修改收货地址'{address}'的信息")
@@ -62,7 +62,7 @@ def step_impl(context, user, address):
 	area_code = get_area_code_by_name(context.client, area_name)
 	params['area_code'] = area_code
 
-	resp = context.client.post("mall.ship_info", params)
+	resp = context.client.post("ginger-order:mall.ship_info", params)
 	bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}修改收货地址'{address}'的排序")
@@ -72,24 +72,24 @@ def step_impl(context, user, address):
 	params['id'] = id
 	params['action'] = json.loads(context.text)['action']
 
-	resp = context.client.post("mall.ship_info_display_index", params)
+	resp = context.client.post("ginger-order:mall.ship_info_display_index", params)
 	bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}启用收货地址'{address}'")
 def step_impl(context, user, address):
 	id = get_ship_info_id_by_address(address)
-	resp = context.client.delete("mall.disabled_ship_info", {"id": id})
+	resp = context.client.delete("ginger-order:mall.disabled_ship_info", {"id": id})
 	bdd_util.assert_api_call_success(resp)
 
 @When(u"{user}禁用收货地址'{address}'")
 def step_impl(context, user, address):
 	id = get_ship_info_id_by_address(address)
-	resp = context.client.put("mall.disabled_ship_info", {"id": id})
+	resp = context.client.put("ginger-order:mall.disabled_ship_info", {"id": id})
 	bdd_util.assert_api_call_success(resp)
 
 @Then(u"{user}能获得默认收货地址")
 def step_impl(context, user):
-	resp = context.client.get("mall.default_ship_info")
+	resp = context.client.get("ginger-order:mall.default_ship_info")
 	bdd_util.assert_api_call_success(resp)
 	actual = resp.data
 
@@ -99,5 +99,5 @@ def step_impl(context, user):
 @When(u"{user}设置收货地址'{address}'为默认收货地址")
 def step_impl(context, user, address):
 	id = get_ship_info_id_by_address(address)
-	resp = context.client.put("mall.default_ship_info", {"id": id})
+	resp = context.client.put("ginger-order:mall.default_ship_info", {"id": id})
 	bdd_util.assert_api_call_success(resp)
