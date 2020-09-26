@@ -21,7 +21,8 @@ def step_impl(context, user):
 	context.client = bdd_client.login('app', user, password=None, context=context)
 	resp = context.client.post('ginger-account:user.user', {
 		'id': context.client.cur_user_id,
-		'avatar': 'http://resource.vxiaocheng.com/ginger/girls/%s.jpg' % user
+		'avatar': 'http://resource.vxiaocheng.com/ginger/girls/%s.jpg' % user,
+		'sex': 'female'
 	})
 	bdd_util.assert_api_call_success(resp)
 
@@ -47,3 +48,7 @@ def step_impl(context, user, corpuser_name):
 		"id": corp_id
 	}
 	context.client = client
+
+	# 创建客户
+	resp = context.client.put('ginger-crm:customer.customer', {})
+	bdd_util.assert_api_call_success(resp)
