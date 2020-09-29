@@ -7,12 +7,7 @@ from behave import *
 from features.steps.core import bdd_util, RestClient, step_util
 from features.steps.product import product_label_steps
 
-def get_product_category_id_by_name(name):
-	if name == '':
-		return 0
 
-	objs = bdd_util.exec_sql("ginger_product", "select * from product_category where name = %s", [name])
-	return objs[0]['id']
 
 def get_product_id_by_name(name):
 	objs = bdd_util.exec_sql("ginger_product", "select * from product_product where name = %s", [name])

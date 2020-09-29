@@ -24,9 +24,14 @@ def step_impl(context, user):
 	for index, input_data in enumerate(input_datas):
 		create_corp(context, input_data['name'], input_data['username'])
 
-	# for input_data in input_datas:
-	# 	context.execute_steps(u"Given %s登录系统" % input_data['username'])
-	# 	context.execute_steps(u"When %s初始化商城" % input_data['username'])
-	#
-	# context.execute_steps(u"Given %s登录系统" % user)
-	# context.execute_steps(u"When %s初始化商城" % user)
+	for input_data in input_datas:
+		context.execute_steps(u"Given %s登录系统" % input_data['username'])
+		context.execute_steps(u"When %s初始化商城" % input_data['username'])
+
+	context.execute_steps(u"Given %s登录系统" % user)
+
+
+@When(u"{corp_user}初始化商城")
+def step_impl(context, corp_user):
+	resp = context.client.put("ginger-crm:system.system_init")
+	bdd_util.assert_api_call_success(resp)
