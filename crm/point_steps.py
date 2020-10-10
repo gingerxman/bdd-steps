@@ -26,10 +26,15 @@ def step_impl(context, corp_user):
 @When(u"{corp_user}更新积分规则'{rule_name}'")
 def step_impl(context, corp_user, rule_name):
 	rule_id = get_point_rule_id_by_name(rule_name)
+	resp = context.client.get('ginger-crm:point.point_rule', {
+		'id': rule_id
+	})
+	rule_type = resp.data['type']
 
 	input_data = json.loads(context.text)
 	resp = context.client.post('ginger-crm:point.point_rule', {
 		'id': rule_id,
+		'type': rule_type,
 		'point': input_data['point'],
 		'data': json.dumps(input_data['data'])
 	})
