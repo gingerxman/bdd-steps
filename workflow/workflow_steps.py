@@ -18,6 +18,9 @@ def step_impl(context):
 	response = rest_client.put('ginger-crm:dev.bdd_reset')
 	bdd_util.assert_api_call_success(response)
 
+	response = rest_client.put('ginger-promotion:dev.bdd_reset')
+	bdd_util.assert_api_call_success(response)
+
 	response = rest_client.put('ginger-product:dev.bdd_reset')
 	bdd_util.assert_api_call_success(response)
 

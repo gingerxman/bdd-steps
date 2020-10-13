@@ -7,3 +7,4 @@ import order
 import mall
 import cart
 import crm
+import promotion
